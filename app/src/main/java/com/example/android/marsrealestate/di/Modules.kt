@@ -5,15 +5,24 @@ import com.example.android.marsrealestate.detail.DetailViewModel
 import com.example.android.marsrealestate.network.MarsApiService
 import com.example.android.marsrealestate.network.MarsProperty
 import com.example.android.marsrealestate.overview.OverviewViewModel
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 val retrofitModule = module {
+
+    factory<Moshi> {
+        Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
+    }
+
     single<MarsApiService> {
         Retrofit.Builder()
-                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(get<Moshi>()))
                 .baseUrl(BASE_URL)
                 .build()
                 .create(MarsApiService::class.java)
