@@ -20,9 +20,9 @@ package com.example.android.marsrealestate.overview
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * This fragment shows the the status of the Mars real-estate web services transaction.
@@ -30,11 +30,9 @@ import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
 class OverviewFragment : Fragment() {
 
     /**
-     * Lazily initialize our [OverviewViewModel].
+     * Inject [OverviewViewModel].
      */
-    private val viewModel: OverviewViewModel by lazy {
-        ViewModelProvider(this).get(OverviewViewModel::class.java)
-    }
+    private val overviewViewModel: OverviewViewModel by viewModel()
 
     /**
      * Inflates the layout with Data Binding, sets its lifecycle owner to the OverviewFragment
@@ -48,7 +46,7 @@ class OverviewFragment : Fragment() {
         binding.lifecycleOwner = this
 
         // Giving the binding access to the OverviewViewModel
-        binding.viewModel = viewModel
+        binding.viewModel = overviewViewModel
 
         setHasOptionsMenu(true)
         return binding.root
