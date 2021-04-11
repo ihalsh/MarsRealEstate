@@ -42,8 +42,8 @@ class OverviewViewModel : ViewModel(), KoinComponent {
     // The external immutable LiveData for the request status String
     val response: LiveData<String> = _status
 
-    private val _property = MutableLiveData<MarsProperty>()
-    val property: LiveData<MarsProperty> = _property
+    private val _properties = MutableLiveData<List<MarsProperty>>()
+    val properties: MutableLiveData<List<MarsProperty>> = _properties
 
     private var viewModelJob = Job()
 
@@ -63,9 +63,9 @@ class OverviewViewModel : ViewModel(), KoinComponent {
         coroutineScope.launch {
             val getPropertiesDeferred = retrofitService.getProperties()
             try {
-                var listResult = getPropertiesDeferred.await()
+                val listResult = getPropertiesDeferred.await()
                 if (listResult.isNotEmpty()) {
-                    _property.value = listResult.first()
+                    _properties.value = listResult
                 }
                 _status.value = "Success: ${listResult.size} Mars properties retrieved."
             } catch (t: Throwable) {
