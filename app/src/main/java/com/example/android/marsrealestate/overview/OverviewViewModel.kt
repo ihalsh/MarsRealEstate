@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApiService
+import com.example.android.marsrealestate.network.MarsProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,12 +37,16 @@ class OverviewViewModel : ViewModel(), KoinComponent {
     private val retrofitService: MarsApiService by inject()
 
     // The internal MutableLiveData String that stores the status of the most recent request
-    private val _response = MutableLiveData<String>()
+    private val _status = MutableLiveData<String>()
 
     // The external immutable LiveData for the request status String
-    val response: LiveData<String> = _response
+    val response: LiveData<String> = _status
+
+    private val _property = MutableLiveData<MarsProperty>()
+    val property: LiveData<MarsProperty> = _property
 
     private var viewModelJob = Job()
+
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     /**
@@ -58,13 +63,16 @@ class OverviewViewModel : ViewModel(), KoinComponent {
         coroutineScope.launch {
             val getPropertiesDeferred = retrofitService.getProperties()
             try {
-                val listResult = getPropertiesDeferred.await()
-                _response.value = "Success: ${listResult.size} Mars properties retrieved."
+                var listResult = getPropertiesDeferred.await()
+                if (listResult.isNotEmpty()) {
+                    _property.value = listResult.first()
+                }
+                _status.value = "Success: ${listResult.size} Mars properties retrieved."
             } catch (t: Throwable) {
-                _response.value = "Failure: " + t.message
+                _status.value = "Failure: " + t.message
             }
         }
-        _response.value = "Set the Mars API Response here!"
+        _status.value = "Set the Mars API Response here!"
     }
 
     override fun onCleared() {
