@@ -17,17 +17,19 @@
 
 package com.example.android.marsrealestate.overview
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApiService
 import com.example.android.marsrealestate.network.MarsProperty
+import com.example.android.marsrealestate.overview.MarsApiStatus.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+
+enum class MarsApiStatus { LOADING, ERROR, DONE }
 
 /**
  * The [ViewModel] that is attached to the [OverviewFragment].
@@ -36,11 +38,11 @@ class OverviewViewModel : ViewModel(), KoinComponent {
 
     private val retrofitService: MarsApiService by inject()
 
-    // The internal MutableLiveData String that stores the status of the most recent request
-    private val _status = MutableLiveData<String>()
+    // The internal MutableLiveData that stores the status of the most recent request
+    private val _status = MutableLiveData<MarsApiStatus>()
 
-    // The external immutable LiveData for the request status String
-    val response: LiveData<String> = _status
+    // The external immutable LiveData for the request status
+    val status: MutableLiveData<MarsApiStatus> = _status
 
     private val _properties = MutableLiveData<List<MarsProperty>>()
     val properties: MutableLiveData<List<MarsProperty>> = _properties
@@ -63,16 +65,15 @@ class OverviewViewModel : ViewModel(), KoinComponent {
         coroutineScope.launch {
             val getPropertiesDeferred = retrofitService.getProperties()
             try {
+                _status.value = LOADING
                 val listResult = getPropertiesDeferred.await()
-                if (listResult.isNotEmpty()) {
-                    _properties.value = listResult
-                }
-                _status.value = "Success: ${listResult.size} Mars properties retrieved."
+                _status.value = DONE
+                _properties.value = listResult
             } catch (t: Throwable) {
-                _status.value = "Failure: " + t.message
+                _status.value = ERROR
+                _properties.value = ArrayList()
             }
         }
-        _status.value = "Set the Mars API Response here!"
     }
 
     override fun onCleared() {
