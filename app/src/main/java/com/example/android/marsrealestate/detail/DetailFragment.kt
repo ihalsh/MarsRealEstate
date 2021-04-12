@@ -22,6 +22,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.android.marsrealestate.databinding.FragmentDetailBinding
+import org.koin.android.ext.android.get
+import org.koin.core.parameter.parametersOf
 
 /**
  * This [Fragment] will show the detailed information about a selected piece of Mars real estate.
@@ -30,11 +32,12 @@ class DetailFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        val args = DetailFragmentArgs.fromBundle(requireArguments()).selectedProperty
+        val app = requireNotNull(activity).application
 
-        @Suppress("UNUSED_VARIABLE")
-        val application = requireNotNull(activity).application
-        val binding = FragmentDetailBinding.inflate(inflater)
-        binding.lifecycleOwner = this
-        return binding.root
+        return FragmentDetailBinding.inflate(inflater).apply {
+            viewModel = get<DetailViewModel> { parametersOf(args, app) }
+            lifecycleOwner = this@DetailFragment
+        }.root
     }
 }

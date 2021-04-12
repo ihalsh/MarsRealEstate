@@ -8,9 +8,6 @@ import com.example.android.marsrealestate.overview.OverviewViewModel
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -34,12 +31,10 @@ val retrofitModule = module {
     }
 }
 
-val appModule = module {
-    single { MarsRealEstateApplication() }
-}
-
 val viewModelModule = module {
-    viewModel { (marsProperty: MarsProperty) -> DetailViewModel(marsProperty, get()) }
+    viewModel { (marsProperty: MarsProperty, application : MarsRealEstateApplication) ->
+        DetailViewModel(marsProperty, application)
+    }
     viewModel { OverviewViewModel() }
 }
 

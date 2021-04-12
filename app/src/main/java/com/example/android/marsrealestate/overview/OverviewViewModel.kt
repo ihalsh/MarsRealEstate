@@ -17,6 +17,7 @@
 
 package com.example.android.marsrealestate.overview
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApiService
@@ -45,7 +46,12 @@ class OverviewViewModel : ViewModel(), KoinComponent {
     val status: MutableLiveData<MarsApiStatus> = _status
 
     private val _properties = MutableLiveData<List<MarsProperty>>()
+
     val properties: MutableLiveData<List<MarsProperty>> = _properties
+
+    private val _navigateToSelectedProperty = MutableLiveData<MarsProperty>()
+
+    val navigateToSelectedProperty: LiveData<MarsProperty> = _navigateToSelectedProperty
 
     private var viewModelJob = Job()
 
@@ -74,6 +80,14 @@ class OverviewViewModel : ViewModel(), KoinComponent {
                 _properties.value = ArrayList()
             }
         }
+    }
+
+    fun displayPropertyDetails(marsProperty: MarsProperty) {
+        _navigateToSelectedProperty.value = marsProperty
+    }
+
+    fun displayPropertyDetailsComplete() {
+        _navigateToSelectedProperty.value = null
     }
 
     override fun onCleared() {

@@ -1,7 +1,6 @@
 package com.example.android.marsrealestate
 
 import android.app.Application
-import com.example.android.marsrealestate.di.appModule
 import com.example.android.marsrealestate.di.retrofitModule
 import com.example.android.marsrealestate.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
@@ -13,7 +12,7 @@ class MarsRealEstateApplication : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@MarsRealEstateApplication)
-            modules(listOf(retrofitModule, appModule, viewModelModule))
+            modules(listOf(retrofitModule, viewModelModule))
         }
     }
 }

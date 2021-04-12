@@ -20,9 +20,9 @@ package com.example.android.marsrealestate.overview
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
-import com.example.android.marsrealestate.databinding.GridViewItemBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -40,20 +40,28 @@ class OverviewFragment : Fragment() {
      * to enable Data Binding to observe LiveData, and sets up the RecyclerView with an adapter.
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val binding = FragmentOverviewBinding.inflate(inflater)
+                              savedInstanceState: Bundle?): View? =
+            FragmentOverviewBinding.inflate(inflater).apply {
+                // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
+                lifecycleOwner = this@OverviewFragment
 
-        // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
-        binding.lifecycleOwner = this
+                // Giving the binding access to the OverviewViewModel
+                viewModel = overviewViewModel
 
-        // Giving the binding access to the OverviewViewModel
-        binding.viewModel = overviewViewModel
+                photosGrid.adapter = PhotoGridAdapter(PhotoGridAdapter.OnClickListener { marsProperty ->
+                    overviewViewModel.displayPropertyDetails(marsProperty)
+                })
 
-        binding.photosGrid.adapter = PhotoGridAdapter()
+                overviewViewModel.navigateToSelectedProperty.observe(viewLifecycleOwner) { marsProperty ->
+                    if (null != marsProperty) {
+                        findNavController()
+                                .navigate(OverviewFragmentDirections.actionShowDetail(marsProperty))
+                        overviewViewModel.displayPropertyDetailsComplete()
+                    }
+                }
 
-        setHasOptionsMenu(true)
-        return binding.root
-    }
+                setHasOptionsMenu(true)
+            }.root
 
     /**
      * Inflates the overflow menu that contains filtering options.
